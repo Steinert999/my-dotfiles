@@ -1,0 +1,36 @@
+- defaults:
+    link:
+      relink: true
+- clean: ['~']
+- create:
+    - "~/.xmonad"
+    - ~/.xmonad/theme"
+    - ~/.config
+- link:
+  # dirs
+  ~/.xmonad/alacritty: alacritty
+  ~/.xmonad/scripts: scripts
+  ~/.xmonad/lib: lib
+  ~/.xmonad/theme/conky: conky
+  ~/.xmonad/theme/polybar: polybar
+  ~/.xmonad/theme/rofi: rofi
+  ~/.xmonad/theme/xmobar: xmobar
+  ~/.ncmpcpp: ncmpcpp
+  ~/.config/betterlockscreen: betterlockscreen
+  ~/.config/htop: htop
+  ~/.config/mpd: mpd
+  ~/.config/ranger: ranger
+  ~/.config/jgmenu: jgmenu
+  # files
+  ~/.xmonad/xmonad.hs: xmonad.hs
+  ~/.xmonad/theme/polybar.sh: polybar.sh
+  ~/.xmonad/theme/system.ini: system.ini
+  ~/.xmonad/theme/networkmenu_config.ini: networkmenu_config.ini
+  ~/.xmonad/theme/wallpaper: wallpaper
+  ~/.xmonad/dunstrc: dunstrc
+  ~/.xmonad/picom.conf: picom.conf
+  ~/.xmonad/xsettingsd: xsettingsd
+  ~/.zshrc: zsh/zshrc
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
