@@ -9,7 +9,8 @@
 - Ronky
 - Rofi
 - Ncmpcpp
-- Z shell
+- Zsh
+- Fish
 - betterlockscreen
 - htop
 - MPD

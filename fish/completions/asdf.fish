@@ -1,0 +1,1 @@
+/home/steinert/.asdf/completions/asdf.fish
