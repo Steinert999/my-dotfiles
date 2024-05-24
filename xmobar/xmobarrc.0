@@ -1,0 +1,35 @@
+Config { overrideRedirect = False 
+       , allDesktops = True
+       , font = "CaskaydiaMono Nerd Font Bold 10" 
+       , bgColor = "#181819" 
+       , fgColor = "#e2e2e3" 
+       , border = BottomB
+       , borderColor = "#76cce0"
+       , borderWidth = 3
+       , position = Static {xpos = 1940, ypos = 10, width = 1890, height = 30}
+       , commands = [ Run Date "<fc=#B48EAD>  %H:%M:%S</fc>" "date" 10 
+                    , Run Kbd [("us(alt-intl)", "<fc=#85d3f2>󰌌 us (intl)</fc>")]
+                    , Run Volume "default" "Master" [] 10
+                    , Run XPropertyLog "_XMONAD_LOG_1"
+                    , Run Com "/home/steinert/.xmonad/theme/xmobar/scripts/music.sh" [] "music" 10
+                   -- , Run Com "/home/steinert/.xmonad/theme/xmobar/scripts/bluetooth.sh" [] "bluetooth" 10
+                    , Run Network "enp4s0" ["-t", "󰛳 <fc=#b39df3><rx> KB/s</fc> | <fc=#f39660><tx> KB/s</fc>"] 20
+                    , Run WeatherX "SBSJ" [ ("clear", "🌣")
+                                          , ("sunny", "🌣")
+                                          , ("mostly clear", "🌤")
+                                          , ("mostly sunny", "🌤")
+                                          , ("partly sunny", "⛅")
+                                          , ("fair", "🌑")
+                                          , ("cloudy","☁")
+                                          , ("overcast","☁")
+                                          , ("partly cloudy", "⛅")
+                                          , ("mostly cloudy", "🌧")
+                                          , ("considerable cloudiness", "⛈")] 
+                                   ["-t", "<skyConditionS>  <tempC>C°  <windKmh> Km/h"
+                                   , "--normal", "#9ed072", "--high", "#fc5d7c", "--low", "#76cce0"
+                                   ] 960
+                    ]
+             , sepChar = "|" 
+             , alignSep = "}{" 
+             , template = "<hspace=5/>|_XMONAD_LOG_1|<hspace=5/>}|SBSJ|<hspace=20/>|music|{<hspace=10/>|kbd|<hspace=10/>|enp4s0|<hspace=10/>|date|<hspace=5/>"
+        }

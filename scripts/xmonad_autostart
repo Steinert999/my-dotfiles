@@ -43,7 +43,7 @@ hsetroot -cover "$xDIR"/theme/wallpaper
 "$xDIR"/scripts/xmonad_dunst
 
 # Launch polybar
-"$xDIR"/scripts/xmonad_bar
+#"$xDIR"/scripts/xmonad_bar
 
 # Launch compositor
 "$xDIR"/scripts/xmonad_comp
@@ -52,6 +52,6 @@ hsetroot -cover "$xDIR"/theme/wallpaper
 exec mpd &
 
 # Start emacs daemon
-exec emacs --daemon &
+# exec emacs --daemon &
 
 exec conky -c $HOME/.xmonad/theme/conky/conkyrc &

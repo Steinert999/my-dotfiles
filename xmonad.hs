@@ -6,6 +6,8 @@
 
 import Colors.MonokaiPro
 import Control.Monad
+import Control.Monad.RWS (Monoid (mempty))
+import Data.List (replicate, reverse)
 import Data.Map qualified as M
 import Data.Maybe
 import Data.Monoid
@@ -30,6 +32,7 @@ import XMonad.Layout.Gaps
 import XMonad.Layout.IndependentScreens
 import XMonad.Layout.Minimize
 import XMonad.Layout.NoBorders
+import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
 import XMonad.ManageHook
 import XMonad.StackSet qualified as W
@@ -119,6 +122,7 @@ myModMask :: KeyMask
 myModMask = mod4Mask
 
 myWorkspaces :: [WorkspaceId]
+-- myWorkspaces = 4 `replicate` "\xf111"
 myWorkspaces = ["1", "2", "3", "4"]
 
 isPrefix :: String -> Bool
@@ -245,7 +249,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
              (f, m, displayNumber) <- [(W.greedyView, 0, "Switch to workspace "), (W.shift, shiftMask, "Move client to workspace ")]
          ]
     ^++^ [ ((m .|. modm, key), addName (displayNumber ++ show sc) $ screenWorkspace sc >>= flip whenJust (windows . f))
-           | (key, sc) <- zip [xK_Left, xK_Right, xK_Up] [0 ..],
+           | (key, sc) <- zip [xK_Up, xK_Down] [0 ..],
              (f, m, displayNumber) <- [(W.view, 0, "Switch to screen number "), (W.shift, mod1Mask, "Move client to screen number ")]
          ]
 
@@ -265,7 +269,9 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) =
     ]
 
 -- ## Layouts ## -------------------------------------------------------------------------
-myLayout = avoidStruts . smartBorders . minimize . BW.boringWindows $ tiled ||| Mirror tiled ||| noBorders Full
+myLayout =
+  avoidStruts . smartBorders . minimize . BW.boringWindows $
+    named "Tilled" tiled ||| named "Mirror Tilled" (Mirror tiled) ||| named "Fullfilled" (noBorders Full)
   where
     -- default tiling algorithm partitions the screen into two panes
     tiled = Tall nmaster delta ratio
@@ -282,7 +288,6 @@ myManageHook =
     [ [manageDocks],
       [isDialog --> doCenterFloat],
       [isFullscreen --> doFullFloat],
-      [className =? c --> doFloat | c <- ["steam", "steamwebhelper"]],
       [className =? c --> doCenterFloat | c <- myCFloats],
       [title =? t --> doSideFloat SC | t <- myTFloats],
       [resource =? layout --> doSideFloat CE | layout <- myLFloats],
@@ -321,57 +326,84 @@ myManageHook =
 
     myIgnores = ["desktop_window"]
 
--- ## Event handling ## -------------------------------------------------------------------
--- myEventHook = ewmhDesktopsEventHook
-
--- ## Logging ## --------------------------------------------------------------------------
-myLogHook :: X ()
-myLogHook = return ()
-
 -- ## bar config ## -----------------------------------------------------------------------
+myPrettyPrinter :: ScreenId -> PP
+myPrettyPrinter s =
+  whenCurrentOn
+    s
+    def
+      { ppSep = xyellow " • ",
+        ppTitleSanitize = xmobarStrip,
+        ppCurrent = wrap " " "" . xmobarBorder "Top" "#76cce0" 2,
+        ppHidden = xwhite . wrap " " "",
+        ppVisibleNoWindows = pure $ xyellow . wrap " " "",
+        ppHiddenNoWindows = xlowWhite . wrap " " "",
+        ppUrgent = xred . wrap (xyellow "!") (xyellow "!"),
+        ppOrder = \[ws, l, _, wins] -> [ws, l, wins],
+        ppOutput = appendFile ("focus" ++ show s) . (++ "\n"),
+        ppExtras = [logTitles formatFocused formatUnfocused]
+      }
+  where
+    formatFocused = wrap (xwhite "[") (xwhite "]") . xmagenta . ppWindow . shorten 20
+    formatUnfocused = wrap (xlowWhite "[") (xlowWhite "]") . xblue . ppWindow . shorten 5
 
-myWorkspaceSort :: X WorkspaceSort
-myWorkspaceSort = getSortByXineramaRule
+    -- \| Windows should have *some* title, which should not not exceed a
+    -- sane length.
+    ppWindow :: String -> String
+    ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w)
 
-myWorkspaceRename :: String -> WindowSpace -> String
-myWorkspaceRename s windowSpace = removePrefixFromString s
+    xblue, xlowWhite, xmagenta, xred, xwhite, xyellow :: String -> String
+    xmagenta = xmobarColor magenta background
+    xblue = xmobarColor blue background
+    xwhite = xmobarColor white background
+    xyellow = xmobarColor yellow background
+    xred = xmobarColor red background
+    xlowWhite = xmobarColor foreground background
+
+xmobar0 = statusBarPropTo "_XMONAD_LOG_1" "xmobar -x 0 ~/.xmonad/theme/xmobar/xmobarrc.0" $ pure (marshallPP (S 0) (myPrettyPrinter (S 0)))
+
+xmobar1 = statusBarPropTo "_XMONAD_LOG_2" "xmobar -x 1 ~/.xmonad/theme/xmobar/xmobarrc.1" $ pure (marshallPP (S 1) (myPrettyPrinter (S 1)))
+
+barSpawner :: ScreenId -> IO StatusBarConfig
+barSpawner 0 = pure xmobar0
+barSpawner 1 = pure xmobar1
+barSpawner _ = mempty
 
 -- ## Main Function ## --------------------------------------------------------------------
 
 -- Run xmonad with all the configs we set up.
 main :: IO ()
 main =
-  xmonad $
-    addDescrKeys' ((mod1Mask .|. shiftMask, xK_1), showKeybindings) myKeys $
-      docks $
-        addEwmhWorkspaceRename (pure myWorkspaceRename) . setEwmhWorkspaceSort myWorkspaceSort . ewmhFullscreen . ewmh
-        -- \$ myXmobarProp
-        $
-          def
-            { -- configs
-              terminal = myTerminal,
-              focusFollowsMouse = myFocusFollowsMouse,
-              clickJustFocuses = myClickJustFocuses,
-              borderWidth = myBorderWidth,
-              modMask = myModMask,
-              workspaces = withScreens 2 myWorkspaces,
-              normalBorderColor = myNormalBorderColor,
-              focusedBorderColor = myFocusedBorderColor,
-              mouseBindings = myMouseBindings,
-              -- hooks, layouts
-              manageHook = myManageHook,
-              layoutHook =
-                gaps [(L, 0), (R, 0), (U, 0), (D, 0)] $
-                  spacingRaw
-                    False
-                    ( Border {top = 10, bottom = 0, right = 10, left = 10}
-                    )
-                    True
-                    ( Border {top = 0, bottom = 10, right = 0, left = 10}
-                    )
-                    True
-                    myLayout,
-              -- handleEventHook    = myEventHook,
-              logHook = myLogHook,
-              startupHook = myStartupHook
-            }
+  xmonad
+    $ addDescrKeys' ((mod1Mask .|. shiftMask, xK_1), showKeybindings) myKeys
+    $ docks
+      . ewmhFullscreen
+      . ewmh
+      . dynamicEasySBs barSpawner
+    $ def -- configs
+      { terminal = myTerminal,
+        focusFollowsMouse = myFocusFollowsMouse,
+        clickJustFocuses = myClickJustFocuses,
+        borderWidth = myBorderWidth,
+        modMask = myModMask,
+        workspaces = withScreens 2 myWorkspaces,
+        normalBorderColor = myNormalBorderColor,
+        focusedBorderColor = myFocusedBorderColor,
+        mouseBindings = myMouseBindings,
+        -- hooks, layouts
+        manageHook = myManageHook,
+        layoutHook =
+          renamed [Chain [CutWordsLeft 2, Prepend ("<fc=" ++ green ++ ">"), Append "</fc>"]] $
+            gaps [(L, 0), (R, 0), (U, 0), (D, 0)] $
+              spacingRaw
+                False
+                ( Border {top = 10, bottom = 0, right = 10, left = 10}
+                )
+                True
+                ( Border {top = 0, bottom = 10, right = 0, left = 10}
+                )
+                True
+                myLayout,
+        logHook = dynamicLog,
+        startupHook = myStartupHook
+      }
