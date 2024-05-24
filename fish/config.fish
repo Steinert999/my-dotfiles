@@ -5,17 +5,8 @@ function fish_greeting
 	fastfetch	
 end
 if status --is-login
-	set -gx PATH $PATH ~/bin
-	set -gx PATH $PATH ~/usr/local/bin
+	set -gx PATH $PATH ~/bin set -gx PATH $PATH ~/usr/local/bin
 	set -gx PATH $PATH ~/.local/bin
-	set texLivePath = /usr/local/texlive/2024
-	set -gx PATH $PATH $texLivePath/bin/x86_64-linux
-
-	set texLiveDocPath = $texLivePath/texmf-dist/doc
-	set -gx MANPATH $MANPATH $texLiveDocPath/man
-	set -gx INFOPATH $INFOPATH $texLiveDocPath/info
-
-
 end 
 if status is-interactive
 	source ~/.asdf/asdf.fish
