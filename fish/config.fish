@@ -30,6 +30,9 @@ if status is-interactive
 	function pacman-clear
 		pacman -Qtdq | sudo pacman -Rs -  $argv
 	end
+	function xmonad-config
+		$EDITOR ~/.xmonad
+	end
 	function fish-config
 		$EDITOR ~/.config/fish/config.fish $argv
 	end
