@@ -13,6 +13,7 @@ Config { overrideRedirect = False
                     , Run XPropertyLog "_XMONAD_LOG_2"
                     , Run Network "enp4s0" ["-t", "󰛳 <fc=#b39df3><rx> KB/s</fc> | <fc=#f39660><tx> KB/s</fc>"] 20
                     , Run Com "/home/steinert/.xmonad/theme/xmobar/scripts/updates-pacman.sh" [] "updates" 960
+                    , Run DiskU [("/", "<fc=#f39660>󰨣 <usedp>%</fc>")] [] 20
                     , Run WeatherX "SBSJ" [ ("clear", "🌣")
                                           , ("sunny", "🌣")
                                           , ("mostly clear", "🌤")
@@ -30,5 +31,5 @@ Config { overrideRedirect = False
                     ]
              , sepChar = "|" 
              , alignSep = "}{" 
-             , template = "|_XMONAD_LOG_2| }|SBSJ|  |updates| { |kbd| |enp4s0|  |date| "
+             , template = "<hspace=5/>|_XMONAD_LOG_2|<hspace=5/>}|SBSJ|<hspace=20/>|updates|{<hspace=10/>|disku|<hspace=10/>|kbd|<hspace=10/>|enp4s0|<hspace=10/>|date|<hspace=5/>"
         }

@@ -7,7 +7,7 @@
 
 TITLE_COLOR="#85d3f2"         # The colour to be used to draw the song title when playing
 ARTIST_COLOR="#f39660"    # The colour to be used to draw the song artist when playing
-PAUSE_COLOR="#e7c664"      # The colour to be used to draw both the song title and artist when paused
+PAUSE_COLOR="#e6e6e5"      # The colour to be used to draw both the song title and artist when paused
 MENU_COLOR="#b39df3"
 
 MPDSTATE=$(mpc | sed -e '2 !d' -e 's/^.*\[//' -e 's/\].*$//')

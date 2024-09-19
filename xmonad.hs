@@ -58,7 +58,7 @@ fileManager :: X ()
 fileManager = spawn "alacritty -e /bin/zsh -c 'ranger'"
 
 textEditor :: X ()
-textEditor = spawn "code "
+textEditor = spawn "neovide "
 
 webBrowser :: X ()
 webBrowser = spawn "firefox"
@@ -364,7 +364,7 @@ xmobar0 = statusBarPropTo "_XMONAD_LOG_1" "xmobar -x 0 ~/.xmonad/theme/xmobar/xm
 
 xmobar1 = statusBarPropTo "_XMONAD_LOG_2" "xmobar -x 1 ~/.xmonad/theme/xmobar/xmobarrc.1" $ pure (marshallPP (S 1) (myPrettyPrinter (S 1)))
 
-barSpawner :: ScreenId -> IO StatusBarConfig
+barSpawner :: ScreenId -> X StatusBarConfig
 barSpawner 0 = pure xmobar0
 barSpawner 1 = pure xmobar1
 barSpawner _ = mempty

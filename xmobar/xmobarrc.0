@@ -31,5 +31,5 @@ Config { overrideRedirect = False
                     ]
              , sepChar = "|" 
              , alignSep = "}{" 
-             , template = "<hspace=5/>|_XMONAD_LOG_1|<hspace=5/>}|SBSJ|<hspace=20/>|music|{<hspace=10/>|kbd|<hspace=10/>|enp4s0|<hspace=10/>|date|<hspace=5/>"
+             , template = "<hspace=5/>|_XMONAD_LOG_1|<hspace=5/>}|music|<hspace=20/>|SBSJ|{<hspace=10/>|kbd|<hspace=10/>|enp4s0|<hspace=10/>|date|<hspace=5/>"
         }
