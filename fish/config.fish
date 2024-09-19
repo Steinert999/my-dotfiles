@@ -7,11 +7,13 @@ end
 if status --is-login
 	set -gx PATH $PATH ~/bin set -gx PATH $PATH ~/usr/local/bin
 	set -gx PATH $PATH ~/.local/bin
+	set -gx PATH $PATH ~/.config/emacs/bin
 end 
 if status is-interactive
+	source ~/.nix-profile/etc/profile.d/nix.fish
 	source ~/.asdf/asdf.fish
 	source ~/.asdf/plugins/java/set-java-home.fish
-	set -gx EDITOR code
+	set -gx EDITOR neovide
 
 	if test -f "~/.ghcup/env"
 		source ~/.ghcup/env
@@ -44,4 +46,5 @@ if status is-interactive
 	end
 	starship init fish | source
 	zoxide init --cmd cd fish | source
+	direnv hook fish | source
 end
