@@ -22,6 +22,7 @@
     ~/.config/ranger: ranger
     ~/.config/jgmenu: jgmenu
     ~/.config/fish: fish
+    ~/.config/dunst: dunst 
     ~/.config/kanata: kanata
     # files
     ~/.xmonad/xmonad.hs: xmonad.hs
@@ -29,7 +30,6 @@
     ~/.xmonad/theme/system.ini: system.ini
     ~/.xmonad/theme/networkmenu_config.ini: networkmenu_config.ini
     ~/.xmonad/theme/wallpaper: wallpaper
-    ~/.xmonad/dunstrc: dunstrc
     ~/.xmonad/picom.conf: picom.conf
     ~/.xmonad/xsettingsd: xsettingsd
     ~/.zshrc: zsh/zshrc
