@@ -22,6 +22,7 @@
     ~/.config/ranger: ranger
     ~/.config/jgmenu: jgmenu
     ~/.config/fish: fish
+    ~/.config/kanata: kanata
     # files
     ~/.xmonad/xmonad.hs: xmonad.hs
     ~/.xmonad/theme/polybar.sh: polybar.sh
