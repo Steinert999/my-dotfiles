@@ -1,0 +1,6 @@
+# MPD runtime artifacts (regenerated at runtime, not config)
+mpd.db
+mpd.log
+mpd.pid
+mpdstate
+sticker.sql
