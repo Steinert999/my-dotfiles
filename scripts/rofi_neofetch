@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2026 Aditya Shakya <adi1090x@gmail.com>
+
+## Rofi script to display neofetch output
+
+DIR="$HOME/.xmonad"
+
+# Launch terminal with neofetch as floating centered window
+alacritty --config-file "$DIR/alacritty/alacritty.toml" \
+          --title "System Information" \
+          --class "neofetch-float,neofetch-float" \
+          --option window.dimensions.columns=100 \
+          --option window.dimensions.lines=30 \
+          -e bash -c "neofetch; echo ''; echo 'Press any key to close...'; read -n 1" &

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Abre pulsemixer em terminal flutuante para gerenciar audio input
+#
+
+alacritty --class "pulsemixer-float,pulsemixer-float" \
+          --title "Audio Mixer" \
+          --option window.dimensions.columns=120 \
+          --option window.dimensions.lines=35 \
+          -e pulsemixer &
+
+
+
+
+
+
+
+
+

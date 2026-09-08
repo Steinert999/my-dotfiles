@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+## Copyright (C) 2020-2024 Aditya Shakya <adi1090x@gmail.com>
+
+## Rofi menu com o historico de notificacoes do dunst.
+## Seleciona um item para reabri-lo; opcao no topo limpa o historico.
+
+DIR="$HOME/.xmonad"
+RASI="$DIR/theme/rofi/networkmenu.rasi"
+
+CLEAR="  Limpar historico"
+
+# Uptime do sistema em microssegundos (timestamp do dunst e monotonico desde boot)
+now_us=$(awk '{printf "%.0f", $1 * 1000000}' /proc/uptime)
+
+# Formata "ha quanto tempo" a partir do timestamp monotonico do dunst
+ago() {
+    local ts_us="$1" diff_s
+    diff_s=$(( (now_us - ts_us) / 1000000 ))
+    (( diff_s < 0 )) && diff_s=0
+    if (( diff_s < 60 )); then
+        echo "${diff_s}s"
+    elif (( diff_s < 3600 )); then
+        echo "$(( diff_s / 60 ))m"
+    elif (( diff_s < 86400 )); then
+        echo "$(( diff_s / 3600 ))h"
+    else
+        echo "$(( diff_s / 86400 ))d"
+    fi
+}
+
+# Monta as linhas do historico: "<app> · <summary>  (<tempo>)"
+# O id da notificacao vai anexado ao final, invisivel, para reabrir o item exato.
+build_list() {
+    dunstctl history 2>/dev/null | jq -r '.data[0][] |
+        "\(.id.data)\t\(.appname.data)\t\(.summary.data)\t\(.timestamp.data)"' |
+    while IFS=$'\t' read -r id app summary ts; do
+        [[ -z "$summary" ]] && summary="(sem titulo)"
+        # \u200b (zero-width space) separa o texto visivel do id
+        printf '%s · %s  (%s)\u200b%s\n' "$app" "$summary" "$(ago "$ts")" "$id"
+    done
+}
+
+main() {
+    local count
+    count=$(dunstctl count history 2>/dev/null)
+    [[ -z "$count" ]] && count=0
+
+    local mesg="$count notificacoes no historico"
+    local list
+    list=$(build_list)
+
+    local menu
+    if [[ "$count" -eq 0 ]]; then
+        menu="  Nenhuma notificacao"
+    else
+        menu="$CLEAR"$'\n'"$list"
+    fi
+
+    local chosen
+    chosen=$(echo -e "$menu" | rofi -dmenu \
+        -p "Notificacoes" \
+        -mesg "$mesg" \
+        -theme "$RASI")
+
+    [[ -z "$chosen" ]] && exit 0
+
+    case "$chosen" in
+        "$CLEAR")
+            dunstctl history-clear
+            ;;
+        "  Nenhuma notificacao")
+            exit 0
+            ;;
+        *)
+            # Extrai o id apos o zero-width space e reabre aquela notificacao
+            id="${chosen#*$'\u200b'}"
+            if [[ -n "$id" && "$id" =~ ^[0-9]+$ ]]; then
+                dunstctl history-pop "$id"
+            else
+                dunstctl history-pop
+            fi
+            ;;
+    esac
+}
+
+main

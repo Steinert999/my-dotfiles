@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2024 Aditya Shakya <adi1090x@gmail.com>
+##
+## Abre o calcurse (calendario + lembretes) numa janela flutuante do Alacritty.
+## Acionado pelo clique direito no modulo "datetime" do polybar.
+##
+## O calcurse roda dentro do Alacritty e herda a paleta de cores do terminal;
+## o tema fica em ~/.config/calcurse/conf (symlink para o repo my-dotfiles).
+
+DIR="$HOME/.xmonad"
+TERM_LAUNCHER="$DIR/scripts/xmonad_term"
+
+# calcurse instalado?
+if ! command -v calcurse >/dev/null 2>&1; then
+    notify-send -a "Calendario" "calcurse nao esta instalado" \
+        "Instale com: sudo pacman -S calcurse"
+    exit 1
+fi
+
+# Evita abrir varias janelas: foca/ignora se ja houver um calcurse rodando
+if pgrep -x calcurse >/dev/null 2>&1; then
+    exit 0
+fi
+
+# Abre em janela flutuante (classe tratada como float pelo xmonad)
+exec "$TERM_LAUNCHER" --float -e calcurse
