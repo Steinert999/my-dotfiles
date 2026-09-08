@@ -7,8 +7,16 @@
 # xmonad dir
 xDIR="$HOME/.xmonad"
 
+# Set analog stereo as default audio sink
+pactl set-default-sink alsa_output.pci-0000_0a_00.4.analog-stereo &
+
 # Export desktop session
 export XDG_CURRENT_DESKTOP='xmonad'
+
+# Cedilha fix: force GTK to use XIM so .XCompose is respected
+export GTK_IM_MODULE=xim
+export QT_IM_MODULE=xim
+export XMODIFIERS=@im=none
 
 # Kill already running process
 _ps=(xsettingsd ksuperkey)
@@ -33,6 +41,9 @@ xfce4-power-manager &
 ksuperkey -e 'Super_L=Alt_L|F1' &
 ksuperkey -e 'Super_R=Alt_L|F1' &
 
+# Configure screens (DP-4 primary on left, DP-2 secondary on right)
+xrandr --output DP-4 --primary --pos 0x0 --output DP-2 --pos 1920x0
+
 # Fix cursor
 xsetroot -cursor_name left_ptr
 
@@ -43,13 +54,22 @@ hsetroot -cover "$xDIR"/theme/wallpaper
 "$xDIR"/scripts/xmonad_dunst
 
 # Launch polybar
-#"$xDIR"/scripts/xmonad_bar
+"$xDIR"/scripts/xmonad_bar
 
 # Launch compositor
 "$xDIR"/scripts/xmonad_comp
 
 # Start mpd
 exec mpd &
+
+# Bridge MPD to MPRIS (enables playerctl for MPD)
+exec mpd-mpris &
+
+# Calcurse: daemon de lembretes (dispara notify-send para eventos proximos).
+# So inicia se o calcurse estiver instalado; nao sobrescreve config existente.
+if command -v calcurse >/dev/null 2>&1; then
+	calcurse -q --daemon &
+fi
 
 # Start emacs daemon
 # exec emacs --daemon &

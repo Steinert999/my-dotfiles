@@ -5,6 +5,7 @@
 
 ## GENERAL --------------------------------------------------------
 
+[general]
 ## Import additional configuration files.
 import = ["~/.xmonad/alacritty/colors.toml", "~/.xmonad/alacritty/fonts.toml"]
 

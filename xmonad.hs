@@ -6,11 +6,9 @@
 
 import Colors.MonokaiPro
 import Control.Monad
-import Control.Monad.RWS (Monoid (mempty))
 import Data.List (replicate, reverse)
 import Data.Map qualified as M
 import Data.Maybe
-import Data.Monoid
 import Graphics.X11.ExtraTypes.XF86
 import System.Exit
 import System.IO (hClose, hPutStr, hPutStrLn)
@@ -19,13 +17,10 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.Minimize
 import XMonad.Actions.OnScreen
 import XMonad.Actions.SpawnOn
-import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Minimize
-import XMonad.Hooks.StatusBar
-import XMonad.Hooks.StatusBar.PP
 import XMonad.Layout.BoringWindows qualified as BW
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.Gaps
@@ -36,12 +31,10 @@ import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
 import XMonad.ManageHook
 import XMonad.StackSet qualified as W
-import XMonad.Util.Loggers
 import XMonad.Util.NamedActions
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
-import XMonad.Util.WorkspaceCompare
 
 -- ## Startup hook ## ---------------------------------------------------------------
 myStartupHook = do
@@ -58,10 +51,10 @@ fileManager :: X ()
 fileManager = spawn "alacritty -e /bin/zsh -c 'ranger'"
 
 textEditor :: X ()
-textEditor = spawn "neovide "
+textEditor = spawn "kiro "
 
 webBrowser :: X ()
-webBrowser = spawn "firefox"
+webBrowser = spawn "opera-gx"
 
 -- Rofi Menus
 rofiNetworkMenu :: X ()
@@ -226,9 +219,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     ((modm .|. shiftMask, xK_space), addName "Reset layout on workspace to default" $ setLayout $ XMonad.layoutHook conf),
     ((modm, xK_Tab), addName "Change focus to next window" $ windows W.focusDown),
     ((modm, xK_j), addName "Move focus to down window" $ windows W.focusDown),
-    ((modm, xK_Left), addName "Move window to next workspace on current screen" $ windows W.focusDown),
+    ((modm, xK_Left), addName "Move focus to next window" $ windows W.focusDown),
     ((modm, xK_k), addName "Move focus to up window" $ windows W.focusUp),
-    ((modm, xK_Right), addName "Move window to previous workspace on current screen" $ windows W.focusUp),
+    ((modm, xK_Right), addName "Move focus to previous window" $ windows W.focusUp),
     ((modm .|. shiftMask, xK_j), addName "Swap focused window with down window" $ windows W.swapDown),
     ((modm .|. shiftMask, xK_Left), addName "Swap focused window with next window" $ windows W.swapDown),
     ((modm .|. shiftMask, xK_k), addName "Swap focused window with up window" $ windows W.swapUp),
@@ -250,7 +243,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
          ]
     ^++^ [ ((m .|. modm, key), addName (displayNumber ++ show sc) $ screenWorkspace sc >>= flip whenJust (windows . f))
            | (key, sc) <- zip [xK_Up, xK_Down] [0 ..],
-             (f, m, displayNumber) <- [(W.view, 0, "Switch to screen number "), (W.shift, mod1Mask, "Move client to screen number ")]
+             (f, m, displayNumber) <- [(W.view, 0, "Focus screen "), (W.shift, mod1Mask, "Move window to screen ")]
          ]
 
 myMouseBindings :: XConfig layout -> M.Map (KeyMask, Button) (Window -> X ())
@@ -298,6 +291,8 @@ myManageHook =
   where
     myCFloats =
       [ "alacritty-float",
+        "neofetch-float",
+        "pulsemixer-float",
         "Music",
         "MPlayer",
         "mpv",
@@ -326,60 +321,16 @@ myManageHook =
 
     myIgnores = ["desktop_window"]
 
--- ## bar config ## -----------------------------------------------------------------------
-myPrettyPrinter :: ScreenId -> PP
-myPrettyPrinter s =
-  whenCurrentOn
-    s
-    def
-      { ppSep = xyellow " • ",
-        ppTitleSanitize = xmobarStrip,
-        ppCurrent = wrap " " "" . xmobarBorder "Top" "#76cce0" 2,
-        ppHidden = xwhite . wrap " " "",
-        ppVisibleNoWindows = pure $ xyellow . wrap " " "",
-        ppHiddenNoWindows = xlowWhite . wrap " " "",
-        ppUrgent = xred . wrap (xyellow "!") (xyellow "!"),
-        ppOrder = \[ws, l, _, wins] -> [ws, l, wins],
-        ppOutput = appendFile ("focus" ++ show s) . (++ "\n"),
-        ppExtras = [logTitles formatFocused formatUnfocused]
-      }
-  where
-    formatFocused = wrap (xwhite "[") (xwhite "]") . xmagenta . ppWindow . shorten 20
-    formatUnfocused = wrap (xlowWhite "[") (xlowWhite "]") . xblue . ppWindow . shorten 5
-
-    -- \| Windows should have *some* title, which should not not exceed a
-    -- sane length.
-    ppWindow :: String -> String
-    ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w)
-
-    xblue, xlowWhite, xmagenta, xred, xwhite, xyellow :: String -> String
-    xmagenta = xmobarColor magenta background
-    xblue = xmobarColor blue background
-    xwhite = xmobarColor white background
-    xyellow = xmobarColor yellow background
-    xred = xmobarColor red background
-    xlowWhite = xmobarColor foreground background
-
-xmobar0 = statusBarPropTo "_XMONAD_LOG_1" "xmobar -x 0 ~/.xmonad/theme/xmobar/xmobarrc.0" $ pure (marshallPP (S 0) (myPrettyPrinter (S 0)))
-
-xmobar1 = statusBarPropTo "_XMONAD_LOG_2" "xmobar -x 1 ~/.xmonad/theme/xmobar/xmobarrc.1" $ pure (marshallPP (S 1) (myPrettyPrinter (S 1)))
-
-barSpawner :: ScreenId -> X StatusBarConfig
-barSpawner 0 = pure xmobar0
-barSpawner 1 = pure xmobar1
-barSpawner _ = mempty
-
 -- ## Main Function ## --------------------------------------------------------------------
 
 -- Run xmonad with all the configs we set up.
 main :: IO ()
 main =
   xmonad
-    $ addDescrKeys' ((mod1Mask .|. shiftMask, xK_1), showKeybindings) myKeys
+    $ addDescrKeys' ((mod4Mask .|. shiftMask, xK_slash), showKeybindings) myKeys
     $ docks
       . ewmhFullscreen
       . ewmh
-      . dynamicEasySBs barSpawner
     $ def -- configs
       { terminal = myTerminal,
         focusFollowsMouse = myFocusFollowsMouse,
@@ -404,6 +355,6 @@ main =
                 )
                 True
                 myLayout,
-        logHook = dynamicLog,
+        logHook = return (),
         startupHook = myStartupHook
       }
