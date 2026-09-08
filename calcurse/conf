@@ -1,0 +1,29 @@
+# calcurse configuration
+#
+# Tema alinhado ao Alacritty: usamos "on default" para o fundo, de modo que o
+# calcurse herde o fundo escuro do terminal (#090A0B) e as cores nomeadas sejam
+# renderizadas com a paleta do Alacritty (One Dark). Formato exigido pelo
+# calcurse: chave=valor SEM espacos ao redor do '=' e SEM aspas.
+
+# Cor principal da interface (cabecalhos/realces) -> azul do Alacritty
+appearance.theme=blue on default
+
+# Aparencia geral
+appearance.calendarview=monthly
+appearance.layout=1
+appearance.notifybar=yes
+appearance.headerline=yes
+appearance.eventseparator=yes
+appearance.emptyline=yes
+
+# Comportamento
+general.autosave=yes
+general.autogc=yes
+general.confirmquit=no
+general.systemdialogs=yes
+general.firstdayofweek=monday
+
+# Barra de notificacao: mostra o proximo compromisso
+notification.warning=300
+notification.command=notify-send "calcurse" "%m"
+notification.notifyall=flagged-only

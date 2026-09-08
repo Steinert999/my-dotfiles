@@ -24,6 +24,7 @@
     ~/.config/fish: fish
     ~/.config/dunst: dunst 
     ~/.config/kanata: kanata
+    ~/.config/calcurse/conf: calcurse/conf
     # files
     ~/.xmonad/xmonad.hs: xmonad.hs
     ~/.xmonad/theme/polybar.sh: polybar.sh
